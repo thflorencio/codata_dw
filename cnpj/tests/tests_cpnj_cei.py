@@ -8,10 +8,10 @@ class TestCnpjCei(TestCase):
             identification_number="57571275002227", type_identification=0
         )
         self.cei = CnpjCei.objects.create(
-            identification_number="213070034183", type_identification=1, address=1
+            identification_number="213070034183", type_identification=1
         )
         self.caepf = CnpjCei.objects.create(
-            identification_number="31749019800118", type_identification=2, address=1
+            identification_number="31749019800118", type_identification=2
         )
 
     def test_identification_number_raiz(self):
