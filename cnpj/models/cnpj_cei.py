@@ -1,12 +1,28 @@
 from django.db import models
 
+from codata_dw.utils.base_model import ModelBase
+from cnpj.models.choices import TIPOS, IDENTIFICACAO, SITUACAO_CADASTRAL, MOTIVO_SITUACAO, NATUREZA_JURIDICA, PORTE
 
-class CnpjCei(models.Model):
-    TIPOS: tuple = ((0, "CNPJ"), (1, "CEI"), (2, "CAEPF"))
+class CnpjCei(ModelBase):
 
-    identification_number = models.CharField("Numero de Identificação", max_length=14)
+    ccm = models.CharField("CCM", max_length=10)
+    name = models.CharField("Nome", max_length=250)
+    fantasy_name = models.CharField("Nome Fantasia", max_length=250)
+    phone = models.CharField("Telefone", max_length=50, null=True)
+    identification_number = models.CharField("Número de Identificação", max_length=14)
     type_identification = models.IntegerField("Tipo", choices=TIPOS)
-    address = models.TextField("Endereço")
+    identif_m_f = models.IntegerField("Identificacao M/F", choices=IDENTIFICACAO)
+    situacao_cadastral = models.IntegerField("Situação Cadastral", choices=SITUACAO_CADASTRAL)
+    motivo_situacao = models.IntegerField("Motivo Situação Cadastral", choices=MOTIVO_SITUACAO)
+    natureza_juridica = models.IntegerField("Natureza Juridica", choices=NATUREZA_JURIDICA)
+    porte = models.IntegerField("Porte", choices=PORTE)
+    street = models.CharField("Logradouro", max_length=250)
+    street_number = models.CharField("Numero", max_length=10)
+    neighborhood = models.CharField("Bairro", max_length=50)
+    complement_address = models.CharField("Complemento", max_length=50)
+    zipcode = models.CharField("Código Postal", max_length=8)
+    state = models.CharField("Estado", max_length=2)
+    main_cnae = models.CharField("Principal CNAE", max_length=10)
 
     @property
     def identification_number_raiz(self):
