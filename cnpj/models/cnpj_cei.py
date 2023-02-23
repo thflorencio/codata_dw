@@ -1,6 +1,6 @@
 from django.db import models
 
-from codata_dw.utils.base_model import ModelBase
+from codata_dw.base_models.base_model import ModelBase
 from cnpj.models.choices import TIPOS, IDENTIFICACAO, SITUACAO_CADASTRAL, MOTIVO_SITUACAO, NATUREZA_JURIDICA, PORTE
 
 class CnpjCei(ModelBase):
