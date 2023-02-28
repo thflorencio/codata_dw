@@ -9,7 +9,6 @@ class ProcessingSheets(ABC):
     models_to_create: List[Model] = []
     models_to_update: List[Model] = []
     # this dict is used to change name of collumns from Dataframe to save to Model
-    # Ex. self.df = pd.read_excel(spreedsheet)
     sheet_to_model: dict = {}
     df: DataFrame
     errors: dict = []

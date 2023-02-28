@@ -9,3 +9,9 @@ class ModelBase(models.Model):
 
     class Meta:
         abstract = True
+
+    def update(self, commit=True, **kwargs):
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+        if commit:
+            self.save()
