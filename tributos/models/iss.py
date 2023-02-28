@@ -1,5 +1,5 @@
 from django.db import models
-from codata_dw.utils.base_model import ModelBase
+from codata_dw.base_models.base_model import ModelBase
 from tributos.models.choices.tipo_servico import TIPO_SERVICO
 
 class Iss(ModelBase):
