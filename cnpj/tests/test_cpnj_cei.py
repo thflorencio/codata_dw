@@ -5,7 +5,7 @@ from cnpj.models import CnpjCei
 class TestCnpjCei(TestCase):
     def setUp(self):
         self.cnpj = CnpjCei.objects.create(
-            identification_number="57571275002227", type_identification="CNPJ"
+            identification_number="57571275002227", type_identification=0
         )
         self.cei = CnpjCei.objects.create(
             identification_number="213070034183", type_identification=1
