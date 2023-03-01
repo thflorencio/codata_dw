@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+from decimal import Decimal
 
 from django.core.exceptions import ValidationError
 from cnpj.spreedsheets.processing_sheets import ProcessingSheets
@@ -53,18 +54,20 @@ class ProcessingRfbV1(ProcessingSheets):
         self.df["TELEFONE2"] = self.df["DDD 2"].astype(str) + self.df["TELEFONE 2"].astype(str)
         self.df["type_identification"] = 0
         self.df = self.df.drop(columns=["DDD FAX", "FAX", "CNAE SECUNDARIA", "CNPJ BASE", "DDD 1", "TELEFONE 1", "DDD 2", "TELEFONE 2", "TP LOGRAD"], axis=0)
-        self.df["INICIO ATIV"]  = pd.to_datetime(self.df["INICIO ATIV"], format="%Y%m%d")
-        self.df["DATA SITUAÇÃO"]  = pd.to_datetime(self.df["DATA SITUAÇÃO"], format="%Y%m%d")
+        self.df["INICIO ATIV"]  = pd.to_datetime(self.df["INICIO ATIV"], format="%Y%m%d", errors="coerce")
+        self.df["DATA SITUAÇÃO"]  = pd.to_datetime(self.df["DATA SITUAÇÃO"], format="%Y%m%d", errors="coerce")
+        self.df = self.df.replace({pd.NaT: None})
         self.df = self.df.rename(columns=self.sheet_to_model)
         self.df["identif_m_f"] = self.df.apply(self.__get_choice, axis=1, args=("identif_m_f",))
         self.df["legal_nature"] = self.df.apply(self.__get_choice, axis=1, args=("legal_nature",))
         self.df["company_size"] = self.df.apply(self.__get_choice, axis=1, args=("company_size",))
+        self.df['social_capital'] = self.df['social_capital'].apply(lambda x: Decimal(x).quantize(Decimal('1.00')))
         self.df["registration_status"] = self.df.apply(self.__get_choice, axis=1, args=("registration_status",))
         self.df["reason_situation"] = self.df.apply(self.__get_choice, axis=1, args=("reason_situation",))
 
     def __init__(self, spreedsheet: "FileField") -> None:
         self.spreedsheets = spreedsheet
-        self.df = pd.read_excel(spreedsheet, decimal=",")
+        self.df = pd.read_excel(spreedsheet, decimal=",", sheet_name="ESTABELECIMENTO")
         self.__format_df()
 
     def __create_or_update(self, data: dict):
@@ -82,6 +85,7 @@ class ProcessingRfbV1(ProcessingSheets):
                 self.__create_or_update(row)
                 
             except ValidationError as e:
+                import ipdb; ipdb.set_trace()
                 self.errors.append(e.message_dict)
             except CnpjCei.DoesNotExist as e:
                 self.models_to_create.append(model_to_check)

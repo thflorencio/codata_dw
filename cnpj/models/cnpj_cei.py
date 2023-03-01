@@ -20,7 +20,7 @@ class CnpjCei(ModelBase):
     main_cnae = models.CharField("Principal CNAE", max_length=10, null=True, blank=True)
     street = models.CharField("Logradouro", max_length=250, null=True, blank=True)
     street_number = models.CharField("Numero", max_length=10, null=True, blank=True)
-    complement_address = models.CharField("Complemento", max_length=50, null=True, blank=True)
+    complement_address = models.CharField("Complemento", max_length=250, null=True, blank=True)
     neighborhood = models.CharField("Bairro", max_length=50, null=True, blank=True)
     zipcode = models.CharField("Código Postal", max_length=8, null=True, blank=True)
     state = models.CharField("Estado", max_length=2, null=True, blank=True)

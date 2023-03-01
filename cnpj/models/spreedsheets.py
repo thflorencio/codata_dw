@@ -4,7 +4,7 @@ from cnpj.spreedsheets.processing_rfb_v1 import ProcessingRfbV1
 class Spreedsheets(BaseSpreedsheets):
 
     def __str__(self):
-        return f"Procesed: {self.processed}"
+        return f"Status: {self.get_status_display()}"
 
     def process(self):
         self.status = 1

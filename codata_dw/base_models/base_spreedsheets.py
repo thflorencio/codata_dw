@@ -14,8 +14,9 @@ class BaseSpreedsheets(ModelBase):
         (3, "Processado com Sucesso"))
     spreedsheet = models.FileField(upload_to=file_name)
     status = models.IntegerField(choices=STATUS, default=0)
-    version_used = models.CharField(max_length=50)
-    errors = models.JSONField(null=True)
+    version_used = models.CharField(max_length=50, null=True, blank=True)
+    errors = models.JSONField(null=True, blank=True)
 
     class Meta:
         abstract = True
+        ordering = ["-created_at"]

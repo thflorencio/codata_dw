@@ -20,6 +20,6 @@ class ProcessingSheets(ABC):
         if self.errors:
             raise Exception("Fix the error before save")
         
-        self.model.objects.bulk_create(self.models_to_create)
+        self.model.objects.bulk_create(self.models_to_create, batch_size=1000)
         for model_to_update in self.models_to_update:
             model_to_update[0].update(**model_to_update[1])
