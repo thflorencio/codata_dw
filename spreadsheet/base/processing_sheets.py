@@ -5,7 +5,7 @@ from pandas import DataFrame
 from cnpj.models.choices.utils import get_key_by_value
 
 class ProcessingSheets(ABC):
-    spreedsheets: "Spreedsheets"
+    spreadsheet: "Spreadsheet"
     model: Model
     models_to_create: List[Model] = []
     models_to_update: List[Model] = []
@@ -18,7 +18,7 @@ class ProcessingSheets(ABC):
     errors: dict = []
     choice_types: dict
     
-    def __init__(self, spreedsheet: FileField) -> None: ...
+    def __init__(self, spreadsheet: FileField) -> None: ...
     def is_valid(self) -> bool: ...
 
     def _drop_columns(self):

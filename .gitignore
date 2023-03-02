@@ -177,4 +177,4 @@ cython_debug/
 data/
 
 # Django Media
-spreedsheets/
+media/

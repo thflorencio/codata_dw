@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "cnpj",
     "tributos",
+    "spreadsheet",
 ]
 
 MIDDLEWARE = [
@@ -132,6 +133,6 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # Media Folder
 
 MEDIA_ROOT = (
-  os.path.join(BASE_DIR, 'spreedsheets') #pasta media para abrigar os arquivos dos usuários
+  os.path.join(BASE_DIR, 'media') #pasta media para abrigar os arquivos dos usuários
 )
-MEDIA_URL = '/spreedsheets/'
+MEDIA_URL = '/media/'

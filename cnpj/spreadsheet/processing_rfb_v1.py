@@ -3,7 +3,7 @@ import numpy as np
 from decimal import Decimal
 
 from django.core.exceptions import ValidationError
-from cnpj.spreedsheets.processing_sheets import ProcessingSheets
+from spreadsheet.base.processing_sheets import ProcessingSheets
 from cnpj.models import CnpjCei
 from cnpj.models.choices import IDENTIFICACAO, NATUREZA_JURIDICA, PORTE, SITUACAO_CADASTRAL, MOTIVO_SITUACAO, TYPES_STREET
 
@@ -70,8 +70,8 @@ class ProcessingRfbV1(ProcessingSheets):
         self._get_choice()
         self._drop_columns()
 
-    def __init__(self, spreedsheet: "FileField") -> None:
-        self.df = pd.read_excel(spreedsheet, decimal=",", sheet_name="ESTABELECIMENTO")
+    def __init__(self, spreadsheet: "FileField") -> None:
+        self.df = pd.read_excel(spreadsheet, decimal=",", sheet_name="ESTABELECIMENTO")
 
     def __create_or_update(self, data: dict):
         identification_number = data.pop('identification_number')

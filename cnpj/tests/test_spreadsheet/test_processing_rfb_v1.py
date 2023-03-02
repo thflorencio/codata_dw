@@ -5,7 +5,7 @@ from datetime import datetime
 from django.test import TestCase, override_settings
 from django.conf import settings
 from cnpj.models import CnpjCei
-from cnpj.spreedsheets.processing_rfb_v1 import ProcessingRfbV1
+from cnpj.spreadsheet.processing_rfb_v1 import ProcessingRfbV1
 
 MEDIA_ROOT = tempfile.mkdtemp()
 
