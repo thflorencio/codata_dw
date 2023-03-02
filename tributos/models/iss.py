@@ -2,10 +2,11 @@ from django.db import models
 from codata_dw.base_models.base_model import ModelBase
 from tributos.models.choices.tipo_servico import TIPO_SERVICO
 
+
 class Iss(ModelBase):
-    cnpj_cei = models.ForeignKey('cnpj.CnpjCei', on_delete=models.CASCADE)
+    cnpj_cei = models.ForeignKey("cnpj.CnpjCei", on_delete=models.CASCADE)
     iss_value = models.DecimalField("Valor ISS", max_digits=11, decimal_places=2)
-    base_calculo =  models.DecimalField("Valor ISS", max_digits=11, decimal_places=2)
+    base_calculo = models.DecimalField("Valor ISS", max_digits=11, decimal_places=2)
     period = models.DateField("Periodo de Apuracao", auto_now=False, auto_now_add=False)
     cod_atividade_cnae = models.CharField("Codigo da Atividade", max_length=5)
     tipo_servico = models.IntegerField("Tipo de Serviço", choices=TIPO_SERVICO)

@@ -132,7 +132,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Media Folder
 
-MEDIA_ROOT = (
-  os.path.join(BASE_DIR, 'media') #pasta media para abrigar os arquivos dos usuários
-)
-MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(
+    BASE_DIR, "media"
+)  # pasta media para abrigar os arquivos dos usuários
+MEDIA_URL = "/media/"

@@ -4,6 +4,7 @@ from django.db.models import Model, FileField
 from pandas import DataFrame
 from cnpj.models.choices.utils import get_key_by_value
 
+
 class ProcessingSheets(ABC):
     spreadsheet: "Spreadsheet"
     model: Model
@@ -17,16 +18,21 @@ class ProcessingSheets(ABC):
     df: DataFrame
     errors: dict = []
     choice_types: dict
-    
-    def __init__(self, spreadsheet: FileField) -> None: ...
-    def is_valid(self) -> bool: ...
+
+    def __init__(self, spreadsheet: FileField) -> None:
+        ...
+
+    def is_valid(self) -> bool:
+        ...
 
     def _drop_columns(self):
         self.df = self.df.drop(columns=self.columns_to_drop, axis=0)
 
     def _get_choice(self):
         for key in self.choice_types.keys():
-            self.df[key] = self.df[key].apply(lambda x: get_key_by_value(self.choice_types[key], x))
+            self.df[key] = self.df[key].apply(
+                lambda x: get_key_by_value(self.choice_types[key], x)
+            )
 
     def _check_columns(self):
         self.default_columns.sort()
@@ -36,11 +42,10 @@ class ProcessingSheets(ABC):
         if self.default_columns != df_columns:
             raise Exception(f"Erro em Colunas, esperado {self.default_columns}")
 
-
-    def save(self) ->  None:
+    def save(self) -> None:
         if self.errors:
             raise Exception("Fix the error before save")
-        
+
         self.model.objects.bulk_create(self.models_to_create, batch_size=1000)
         for model_to_update in self.models_to_update:
             model_to_update[0].update(**model_to_update[1])

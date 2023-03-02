@@ -6,27 +6,52 @@ import uuid
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Spreadsheet',
+            name="Spreadsheet",
             fields=[
-                ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('spreadsheet', models.FileField(upload_to=codata_dw.base_models.base_spreadsheet.file_name)),
-                ('status', models.IntegerField(choices=[(0, 'Enviado'), (1, 'Processando'), (2, 'Erro'), (3, 'Processado com Sucesso')], default=0)),
-                ('version_used', models.CharField(blank=True, max_length=50, null=True)),
-                ('errors', models.JSONField(blank=True, null=True)),
+                (
+                    "id",
+                    models.UUIDField(
+                        default=uuid.uuid4,
+                        editable=False,
+                        primary_key=True,
+                        serialize=False,
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                (
+                    "spreadsheet",
+                    models.FileField(
+                        upload_to=codata_dw.base_models.base_spreadsheet.file_name
+                    ),
+                ),
+                (
+                    "status",
+                    models.IntegerField(
+                        choices=[
+                            (0, "Enviado"),
+                            (1, "Processando"),
+                            (2, "Erro"),
+                            (3, "Processado com Sucesso"),
+                        ],
+                        default=0,
+                    ),
+                ),
+                (
+                    "version_used",
+                    models.CharField(blank=True, max_length=50, null=True),
+                ),
+                ("errors", models.JSONField(blank=True, null=True)),
             ],
             options={
-                'ordering': ['-created_at'],
-                'abstract': False,
+                "ordering": ["-created_at"],
+                "abstract": False,
             },
         ),
     ]

@@ -6,30 +6,65 @@ import uuid
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
-        ('cnpj', '0001_initial'),
+        ("cnpj", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Iss',
+            name="Iss",
             fields=[
-                ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('iss_value', models.DecimalField(decimal_places=2, max_digits=11, verbose_name='Valor ISS')),
-                ('base_calculo', models.DecimalField(decimal_places=2, max_digits=11, verbose_name='Valor ISS')),
-                ('period', models.DateField(verbose_name='Periodo de Apuracao')),
-                ('cod_atividade_cnae', models.CharField(max_length=5, verbose_name='Codigo da Atividade')),
-                ('tipo_servico', models.IntegerField(choices=[(0, 'Instituição Financeira'), (0, 'Tomador'), (0, 'Prestador')], verbose_name='Tipo de Serviço')),
-                ('cnpj_cei', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='cnpj.cnpjcei')),
+                (
+                    "id",
+                    models.UUIDField(
+                        default=uuid.uuid4,
+                        editable=False,
+                        primary_key=True,
+                        serialize=False,
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                (
+                    "iss_value",
+                    models.DecimalField(
+                        decimal_places=2, max_digits=11, verbose_name="Valor ISS"
+                    ),
+                ),
+                (
+                    "base_calculo",
+                    models.DecimalField(
+                        decimal_places=2, max_digits=11, verbose_name="Valor ISS"
+                    ),
+                ),
+                ("period", models.DateField(verbose_name="Periodo de Apuracao")),
+                (
+                    "cod_atividade_cnae",
+                    models.CharField(max_length=5, verbose_name="Codigo da Atividade"),
+                ),
+                (
+                    "tipo_servico",
+                    models.IntegerField(
+                        choices=[
+                            (0, "Instituição Financeira"),
+                            (0, "Tomador"),
+                            (0, "Prestador"),
+                        ],
+                        verbose_name="Tipo de Serviço",
+                    ),
+                ),
+                (
+                    "cnpj_cei",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="cnpj.cnpjcei"
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'ISS',
-                'verbose_name_plural': 'ISS',
+                "verbose_name": "ISS",
+                "verbose_name_plural": "ISS",
             },
         ),
     ]
