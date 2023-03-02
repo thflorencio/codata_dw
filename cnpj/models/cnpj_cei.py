@@ -1,7 +1,7 @@
 from django.db import models
 
 from codata_dw.base_models.base_model import ModelBase
-from cnpj.models.choices import TIPOS, IDENTIFICACAO, SITUACAO_CADASTRAL, MOTIVO_SITUACAO, NATUREZA_JURIDICA, PORTE
+from cnpj.models.choices import TIPOS, IDENTIFICACAO, SITUACAO_CADASTRAL, MOTIVO_SITUACAO, NATUREZA_JURIDICA, PORTE, TYPES_STREET
 
 class CnpjCei(ModelBase):
 
@@ -18,13 +18,16 @@ class CnpjCei(ModelBase):
     reason_situation = models.IntegerField("Motivo Situação Cadastral", choices=MOTIVO_SITUACAO, null=True, blank=True)
     start_activities =  models.DateField("Inicio das Atividades", null=True, blank=True)
     main_cnae = models.CharField("Principal CNAE", max_length=10, null=True, blank=True)
+    type_street = models.IntegerField("Tipo de Logradouro", choices=TYPES_STREET, null=True, blank=True)
     street = models.CharField("Logradouro", max_length=250, null=True, blank=True)
     street_number = models.CharField("Numero", max_length=10, null=True, blank=True)
     complement_address = models.CharField("Complemento", max_length=250, null=True, blank=True)
     neighborhood = models.CharField("Bairro", max_length=50, null=True, blank=True)
     zipcode = models.CharField("Código Postal", max_length=8, null=True, blank=True)
     state = models.CharField("Estado", max_length=2, null=True, blank=True)
+    ddd_phone = models.CharField("DDD Telefone", max_length=3, null=True, blank=True)
     phone = models.CharField("Telefone", max_length=50, null=True, blank=True)
+    ddd_phone2 = models.CharField("DDD Telefone 2", max_length=3, null=True, blank=True)
     phone2 = models.CharField("Telefone 2", max_length=50, null=True, blank=True)
     type_identification = models.IntegerField("Tipo", choices=TIPOS, null=True, blank=True)
     

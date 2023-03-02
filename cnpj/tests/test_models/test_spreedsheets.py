@@ -25,4 +25,4 @@ class TestSpreedsheets(TestCase):
     def test_process(self):
         self.spreedsheets.process()
         df = pd.read_excel(f"{settings.BASE_DIR}/cnpj/tests/files/CNPJ DE MOGI- DEZEMBRO 2022 - RFB SMF.xlsx", decimal=",")
-        self.assertEqual(CnpjCei.objects.filter(identification_number__in=df["CNPJ"].tolist()).count(), 171)
+        self.assertEqual(CnpjCei.objects.filter(identification_number__in=df["CNPJ"].tolist()).count(), 170)

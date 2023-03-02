@@ -1,14 +1,21 @@
+import shutil, tempfile
 import pandas as pd
 from datetime import datetime
 
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.conf import settings
 from cnpj.models import CnpjCei
 from cnpj.spreedsheets.processing_rfb_v1 import ProcessingRfbV1
 
+MEDIA_ROOT = tempfile.mkdtemp()
 
+@override_settings(MEDIA_ROOT=MEDIA_ROOT)
 class TestProcessingRfbV1(TestCase):
 
+    @classmethod
+    def tearDownClass(cls): 
+        shutil.rmtree(MEDIA_ROOT, ignore_errors=True)
+        super().tearDownClass()
 
     def setUp(self) -> None:
         self.cnpj_cei = CnpjCei.objects.create(
@@ -16,6 +23,7 @@ class TestProcessingRfbV1(TestCase):
         )
         self.file_update = open(f"{settings.BASE_DIR}/cnpj/tests/files/Test CNPJ Update.xlsx", 'rb')
         self.file_new = open(f"{settings.BASE_DIR}/cnpj/tests/files/Test CNPJ New.xlsx", 'rb')
+        self.file_less_column = open(f"{settings.BASE_DIR}/cnpj/tests/files/Test CNPJ less column.xlsx", 'rb')
 
     
     def test_update_existing_cnpj(self):
@@ -47,15 +55,18 @@ class TestProcessingRfbV1(TestCase):
         self.assertEquals(cnpj_new.reason_situation, 0)
         self.assertEquals(cnpj_new.start_activities, datetime.strptime("2020-06-13 00:00:00", "%Y-%m-%d %H:%M:%S").date())
         self.assertEquals(cnpj_new.main_cnae, "5620104")
-        self.assertEquals(cnpj_new.street, "AVENIDA PRESIDENTE GETULIO VARGAS")
+        self.assertEquals(cnpj_new.street, "PRESIDENTE GETULIO VARGAS")
         self.assertEquals(cnpj_new.street_number, "943")
         self.assertEquals(cnpj_new.complement_address, '')
         self.assertEquals(cnpj_new.neighborhood, "MOGI MODERNO")
-        self.assertEquals(cnpj_new.zipcode, "8715400")
+        self.assertEquals(cnpj_new.zipcode, "08715400")
         self.assertEquals(cnpj_new.state, "SP")
-        self.assertEquals(cnpj_new.phone, "1197099364")
-        self.assertEquals(cnpj_new.phone2, '')
+        self.assertEquals(cnpj_new.phone, "97099364")
+        self.assertEquals(cnpj_new.phone2, '0')
         self.assertEquals(cnpj_new.type_identification, 0)
-        
+
+    def test_less_column_error(self):
+        processing_rfb = ProcessingRfbV1(self.file_less_column)
+        self.assertFalse(processing_rfb.is_valid())
 
     

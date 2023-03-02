@@ -5,8 +5,8 @@ from decimal import Decimal
 from django.core.exceptions import ValidationError
 from cnpj.spreedsheets.processing_sheets import ProcessingSheets
 from cnpj.models import CnpjCei
-from cnpj.models.choices import IDENTIFICACAO, NATUREZA_JURIDICA, PORTE, SITUACAO_CADASTRAL, MOTIVO_SITUACAO
-from cnpj.models.choices.utils import get_key_by_value
+from cnpj.models.choices import IDENTIFICACAO, NATUREZA_JURIDICA, PORTE, SITUACAO_CADASTRAL, MOTIVO_SITUACAO, TYPES_STREET
+
 
 
 class ProcessingRfbV1(ProcessingSheets):
@@ -25,50 +25,53 @@ class ProcessingRfbV1(ProcessingSheets):
        "MOTIVO DA SITUAÇÃO": "reason_situation",
        "INICIO ATIV": "start_activities",
        "CNAE PRINCIPAL": "main_cnae",
+       "TP LOGRAD": "type_street",
        "LOGRADOURO": "street",
        "NUMERO": "street_number",
        "COMPL": "complement_address",
        "BAIRRO": "neighborhood",
        "CEP": "zipcode",
        "UF": "state",
-       "TELEFONE": "phone",
-       "TELEFONE2": "phone2"
+       "DDD 1": "ddd_phone",
+       "TELEFONE 1": "phone",
+       "DDD 2": "ddd_phone2",
+       "TELEFONE 2": "phone2"
     }
-
-    def __get_choice(self, row, type_choice):
-
-        types: dict = {
+    columns_to_drop = ["DDD FAX", "FAX", "CNAE SECUNDARIA", "CNPJ BASE"] 
+    choice_types: dict = {
             "identif_m_f": IDENTIFICACAO,
             "legal_nature": NATUREZA_JURIDICA,
             "company_size": PORTE,
             "registration_status":SITUACAO_CADASTRAL,
-            "reason_situation": MOTIVO_SITUACAO
+            "reason_situation": MOTIVO_SITUACAO,
+            "type_street": TYPES_STREET
         }
-
-        return get_key_by_value(types[type_choice], row[type_choice])
+    default_columns = ['CNPJ', 'IDENTIF M/F', 'CNPJ BASE', 'NOME EMPRESARIAL', 'NOME FANTASIA',
+       'NATUREZA JURIDICA', 'PORTE', 'CAPITAL SOCIAL', 'SITUAÇÃO CADASTRAL',
+       'DATA SITUAÇÃO', 'MOTIVO DA SITUAÇÃO', 'INICIO ATIV', 'CNAE PRINCIPAL',
+       'CNAE SECUNDARIA', 'TP LOGRAD', 'LOGRADOURO', 'NUMERO', 'COMPL',
+       'BAIRRO', 'CEP', 'UF', 'DDD 1', 'TELEFONE 1', 'DDD 2', 'TELEFONE 2',
+       'DDD FAX', 'FAX']
+    
 
     def __format_df(self):
-        self.df = self.df.replace({np.nan:""})
-        self.df["LOGRADOURO"] = self.df["TP LOGRAD"].astype(str) + " " + self.df["LOGRADOURO"].astype(str)
-        self.df["TELEFONE"] = self.df["DDD 1"].astype(str) + self.df["TELEFONE 1"].astype(str)
-        self.df["TELEFONE2"] = self.df["DDD 2"].astype(str) + self.df["TELEFONE 2"].astype(str)
-        self.df["type_identification"] = 0
-        self.df = self.df.drop(columns=["DDD FAX", "FAX", "CNAE SECUNDARIA", "CNPJ BASE", "DDD 1", "TELEFONE 1", "DDD 2", "TELEFONE 2", "TP LOGRAD"], axis=0)
-        self.df["INICIO ATIV"]  = pd.to_datetime(self.df["INICIO ATIV"], format="%Y%m%d", errors="coerce")
-        self.df["DATA SITUAÇÃO"]  = pd.to_datetime(self.df["DATA SITUAÇÃO"], format="%Y%m%d", errors="coerce")
-        self.df = self.df.replace({pd.NaT: None})
+        self._check_columns()
         self.df = self.df.rename(columns=self.sheet_to_model)
-        self.df["identif_m_f"] = self.df.apply(self.__get_choice, axis=1, args=("identif_m_f",))
-        self.df["legal_nature"] = self.df.apply(self.__get_choice, axis=1, args=("legal_nature",))
-        self.df["company_size"] = self.df.apply(self.__get_choice, axis=1, args=("company_size",))
-        self.df['social_capital'] = self.df['social_capital'].apply(lambda x: Decimal(x).quantize(Decimal('1.00')))
-        self.df["registration_status"] = self.df.apply(self.__get_choice, axis=1, args=("registration_status",))
-        self.df["reason_situation"] = self.df.apply(self.__get_choice, axis=1, args=("reason_situation",))
+        self.df["start_activities"]  = pd.to_datetime(self.df["start_activities"], format="%Y%m%d", errors="coerce")
+        self.df["date_registration_status"]  = pd.to_datetime(self.df["date_registration_status"], format="%Y%m%d", errors="coerce")
+        self.df['social_capital'] = self.df['social_capital'].apply(lambda x: Decimal(x).quantize(Decimal('1.00')))  
+        self.df[["ddd_phone", "phone", "ddd_phone2", "phone2"]] = self.df[["ddd_phone", "phone", "ddd_phone2", "phone2"]].fillna(0)
+        self.df[["ddd_phone", "phone", "ddd_phone2", "phone2"]] = self.df[["ddd_phone", "phone", "ddd_phone2", "phone2"]].astype(int, errors="ignore")
+        self.df["zipcode"] = self.df["zipcode"].astype(str).str.zfill(8)
+        self.df["identification_number"] = self.df["identification_number"].astype(str).str.zfill(14)
+        self.df["type_identification"] = 0
+        self.df = self.df.replace({np.nan:''})
+        self.df = self.df.replace({pd.NaT: None})
+        self._get_choice()
+        self._drop_columns()
 
     def __init__(self, spreedsheet: "FileField") -> None:
-        self.spreedsheets = spreedsheet
         self.df = pd.read_excel(spreedsheet, decimal=",", sheet_name="ESTABELECIMENTO")
-        self.__format_df()
 
     def __create_or_update(self, data: dict):
         identification_number = data.pop('identification_number')
@@ -78,6 +81,12 @@ class ProcessingRfbV1(ProcessingSheets):
 
     def is_valid(self) -> bool:
         self.errors = []
+        try:
+            self.__format_df()
+        except Exception as e:
+            self.errors.append({"GenericError": str(e)})
+            return False
+        
         for index, row in self.df.iterrows():
             try:
                 model_to_check = self.model(**row)
@@ -85,12 +94,13 @@ class ProcessingRfbV1(ProcessingSheets):
                 self.__create_or_update(row)
                 
             except ValidationError as e:
-                import ipdb; ipdb.set_trace()
-                self.errors.append(e.message_dict)
+                error  = e.message_dict
+                error["row"] = row.to_json()
+                self.errors.append(error)
             except CnpjCei.DoesNotExist as e:
                 self.models_to_create.append(model_to_check)
             except Exception as e:
-                self.errors.append({"GenericError": str(e)})
+                self.errors.append({"GenericError": str(e), "row": row.to_json()})
 
         if self.errors:
             return False
