@@ -23,7 +23,7 @@ class TestSpreadsheet(TestCase):
             f"{settings.BASE_DIR}/cnpj/tests/files/CNPJ DE MOGI- DEZEMBRO 2022 - RFB SMF.xlsx",
             "rb",
         )
-        self.spreadsheet = Spreadsheet.objects.create(spreadsheet=File(self.file))
+        self.spreadsheet = Spreadsheet.objects.create(spreadsheet=File(self.file), processor="rfb_v1")
         CnpjCei.objects.all().delete()
 
     def test_process(self):
