@@ -1,7 +1,7 @@
 from abc import ABC
 from typing import List
 from django.db.models import Model, FileField
-from pandas import DataFrame
+from pandas import DataFrame, read_excel
 from cnpj.models.choices.utils import get_key_by_value
 
 
@@ -19,8 +19,10 @@ class ProcessingSheets(ABC):
     errors: dict = []
     choice_types: dict
 
-    def __init__(self, spreadsheet: FileField) -> None:
-        ...
+    def __init__(self, spreadsheet: "FileField") -> None:
+        self.df = read_excel(spreadsheet, decimal=",")
+        self.models_to_create = []
+        self.models_to_update = []
 
     def is_valid(self) -> bool:
         ...
@@ -35,17 +37,13 @@ class ProcessingSheets(ABC):
             )
 
     def _check_columns(self):
-        self.default_columns.sort()
-        df_columns = self.df.columns.values.tolist()
-        df_columns.sort()
-
-        if self.default_columns != df_columns:
+        if sorted(self.default_columns) != sorted(self.df.columns.values.tolist()):
             raise Exception(f"Erro em Colunas, esperado {self.default_columns}")
 
     def save(self) -> None:
         if self.errors:
             raise Exception("Fix the error before save")
-
+        
         self.model.objects.bulk_create(self.models_to_create, batch_size=1000)
         for model_to_update in self.models_to_update:
             model_to_update[0].update(**model_to_update[1])
