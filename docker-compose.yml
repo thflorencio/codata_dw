@@ -3,15 +3,14 @@ services:
     image: postgres
     volumes:
       - ./data/db:/var/lib/postgresql/data
-    environment:
-      - POSTGRES_DB=postgres
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
+    env_file: .env
     healthcheck:
       test: ["CMD-SHELL", "pg_isready"]
       interval: 2s
       timeout: 5s
       retries: 5
+    networks:
+        - codata_dw
   web:
     build: .
     stdin_open: true 
@@ -21,10 +20,44 @@ services:
       - .:/code
     ports:
       - "8000:8000"
-    environment:
-      - POSTGRES_NAME=postgres
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
+    env_file: .env
     depends_on:
       db:
         condition: service_healthy
+    networks:
+        - codata_dw
+
+  rabbitmq:
+    image: rabbitmq:3.11-management-alpine
+    hostname: rabbitmq
+    env_file: .env
+    ports:
+      - "5672"
+      - "15672"
+    networks:
+        - codata_dw
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 30s
+      timeout: 30s
+      retries: 3
+
+  worker:
+    build: .
+    stdin_open: true 
+    tty: true  
+    command: celery -A codata_dw worker -l INFO
+    volumes:
+      - .:/code
+    env_file: .env
+    depends_on:
+      db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+        - codata_dw
+
+networks:
+  codata_dw:
+    driver: bridge

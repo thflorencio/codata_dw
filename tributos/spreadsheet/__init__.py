@@ -1,1 +1,1 @@
-from cnpj.spreadsheet.processing_rfb_v1 import *
+from tributos.spreadsheet.processing_iss_v1 import *

@@ -92,12 +92,11 @@ class ProcessingIssV1(ProcessingSheets):
 
 
     def __create_or_update(self, data: dict):
-        cnpj_cei = data.pop("cnpj_cei")
-        cnpj_cei_model = CnpjCei
+        identification_number = data.pop("identification_number")
         period = data.pop("period")
         cnae = data.pop("cod_atividade_cnae")
-        cnpj_cei_model = self.model.objects.get(cnpj_cei=cnpj_cei, period=period, cod_atividade_cnae=cnae)
-        self.models_to_update.append((cnpj_cei_model, data))
+        self.model.objects.get(identification_number=identification_number, period=period, cod_atividade_cnae=cnae)
+        self.models_to_update.append((self.model, data))
 
     def generate_df(self):
         new_rows = []
@@ -105,7 +104,7 @@ class ProcessingIssV1(ProcessingSheets):
         for index, row in self.df.iterrows():
             for month in self.MONTHS_TO_PROCESS.keys():
                 new_rows.append({
-                    "cnpj_cei": row["Cnpj"],
+                    "identification_number": row["Cnpj"],
                     "iss_value": row[f"ISS_{month}"],
                     "base_calculo": row[f"BaseCalculo_{month}"],
                     "period": datetime(int(row["AnoReferencia"]), self.MONTHS_TO_PROCESS[month], 1),
@@ -127,20 +126,23 @@ class ProcessingIssV1(ProcessingSheets):
             return False
         for index, row in df_formated.iterrows():
             try:
-                row["cnpj_cei"] = CnpjCei.objects.get(identification_number=row["cnpj_cei"])
                 model_to_check = self.model(**row)
                 model_to_check.clean_fields()
                 self.__create_or_update(row)
             except ValidationError as e:
-                error = e.message_dict
-                error["row"] = row.to_json()
+                error = {"erro":str(e)}
+                error["identification_number"] = row["identification_number"]
+                error["period"] = row["period"]
+                error["cod_atividade_cnae"] = row["cod_atividade_cnae"]
                 self.errors.append(error)
             except self.model.DoesNotExist as e:
                 self.models_to_create.append(model_to_check)
-            except CnpjCei.DoesNotExist as e:
-                self.errors.append({"CnpjCei.DoesNotExist": row["cnpj_cei"]})
             except Exception as e:
-                self.errors.append({"GenericError": str(e), "row": row.to_json()})
+                error = {"erro":str(e)}
+                error["identification_number"] = row["identification_number"]
+                error["period"] = row["period"]
+                error["cod_atividade_cnae"] = row["cod_atividade_cnae"]
+                self.errors.append(error)
 
         if self.errors:
             return False

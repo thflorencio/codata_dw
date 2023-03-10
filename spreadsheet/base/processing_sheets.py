@@ -38,7 +38,7 @@ class ProcessingSheets(ABC):
 
     def _check_columns(self):
         if sorted(self.default_columns) != sorted(self.df.columns.values.tolist()):
-            raise Exception(f"Erro em Colunas, esperado {self.default_columns}")
+            raise Exception(f"Erro em Colunas, esperado {self.default_columns} colunas no planilha {self.df.columns.values.tolist()}")
 
     def save(self) -> None:
         if self.errors:
