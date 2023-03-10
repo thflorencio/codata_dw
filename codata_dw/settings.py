@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "cnpj",
     "tributos",
     "spreadsheet",
+    "ckan",
 ]
 
 MIDDLEWARE = [
